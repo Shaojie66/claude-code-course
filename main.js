@@ -410,20 +410,27 @@
     if (allBtn)   allBtn.addEventListener('click',   showAll);
     if (resetBtn) resetBtn.addEventListener('click', reset);
 
-    // Restart chat: show all messages at once
+    // Restart chat: show all messages at once with staggered animation
     function restartChat(btn) {
       const container = btn.closest('.chat-window');
       if (!container) return;
-      const msgs = $$('.chat-message', container);
-      const typingEl = $('.chat-typing', container);
-      msgs.forEach((m, i) => {
+      // Reset first so messages are hidden and index is 0 before animation
+      index = 0;
+      messages.forEach(m => { m.style.display = 'none'; m.style.animation = ''; });
+      if (typingEl) typingEl.style.display = 'none';
+      updateProgress();
+      // Staggered reveal
+      messages.forEach((m, i) => {
         setTimeout(() => {
           m.style.display = 'flex';
           m.style.animation = 'fadeSlideUp 0.3s var(--ease-out)';
         }, i * 80);
       });
-      if (typingEl) typingEl.style.display = 'none';
-      updateProgress();
+      // Update progress to final state after animation completes
+      setTimeout(() => {
+        index = messages.length;
+        updateProgress();
+      }, messages.length * 80 + 300);
     }
 
     // Wire up "重新播放" via event delegation
