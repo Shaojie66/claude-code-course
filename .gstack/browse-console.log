@@ -1,0 +1,54 @@
+[2026-04-01T11:01:02.098Z] [log] Found btn: 重新播放
+[2026-04-01T11:01:35.002Z] [log] Hidden 29 messages, clicked restart
+[2026-04-01T11:01:37.056Z] [log] Visible by style: 0
+[2026-04-01T11:01:37.056Z] [log] Not hidden: 0
+[2026-04-01T11:01:59.278Z] [log] Total messages: 5
+[2026-04-01T11:01:59.278Z] [log] Btn text: 重新播放
+[2026-04-01T11:01:59.278Z] [log] Visible after click: 0
+[2026-04-01T11:02:00.368Z] [log] Clicked allBtn
+[2026-04-01T11:04:01.472Z] [log] Hidden all messages
+[2026-04-01T11:04:03.509Z] [log] Visible: 4
+[2026-04-01T11:04:26.148Z] [log] Messages visible after restart: 4
+[2026-04-01T11:05:14.149Z] [log] typeof restartChat: undefined
+[2026-04-01T11:05:14.149Z] [log] typeof showLayer: undefined
+[2026-04-01T11:05:17.266Z] [log] Visible after restart: 4
+[2026-04-01T11:06:10.493Z] [log] showLayer type: undefined
+[2026-04-01T11:06:10.493Z] [log] window.showLayer type: undefined
+[2026-04-01T11:06:10.493Z] [log] document.title: Claude Code 逆向工程
+[2026-04-01T11:06:37.718Z] [log] Visible messages: 9
+[2026-04-01T11:06:37.718Z] [log] Total messages: 29
+[2026-04-01T11:09:06.395Z] [log] Found btn: 重新播放
+[2026-04-01T11:09:06.395Z] [log] onclick attr: window.restartChat(this)
+[2026-04-01T11:09:06.395Z] [log] direct call error: window.restartChat is not a function
+[2026-04-01T11:11:32.847Z] [log] typeof restartChat: undefined
+[2026-04-01T11:11:32.914Z] [log] Before: 0
+[2026-04-01T11:11:32.914Z] [log] After: 0
+[2026-04-01T11:12:01.510Z] [log] btn found: 重新播放
+[2026-04-01T11:12:01.510Z] [log] btn parent: chat-controls
+[2026-04-01T11:12:01.511Z] [log] btn click listener fired
+[2026-04-01T11:12:01.511Z] [log] closest chat-window: yes
+[2026-04-01T11:12:01.511Z] [log] closest data-chat-action: yes
+[2026-04-01T11:12:23.815Z] [log] Messages in container: 5
+[2026-04-01T11:12:23.815Z] [log] After hiding: 0 (should be 0)
+[2026-04-01T11:12:23.815Z] [log] Visible immediately: 0 (should be 0 - setTimeout)
+[2026-04-01T11:12:24.862Z] [log] After 500ms, visible: 5
+[2026-04-01T11:12:50.375Z] [log] Visible after dispatchEvent: 5
+[2026-04-01T11:13:11.428Z] [log] direct listener fired
+[2026-04-01T11:13:16.100Z] [log] Before: 0 After: 0
+[2026-04-01T11:13:39.377Z] [log] main.js executed?: false
+[2026-04-01T11:13:39.377Z] [log] Document click listeners: unknown
+[2026-04-01T11:13:40.461Z] [log] Direct call done, messages should appear
+[2026-04-01T11:13:42.515Z] [log] Visible after direct call: 5
+[2026-04-01T11:14:14.992Z] [log] strict mode eval works: true
+[2026-04-01T11:14:14.992Z] [log] DOM ready: complete
+[2026-04-01T11:14:14.992Z] [log] Script tags: 1
+[2026-04-01T11:14:14.992Z] [log] main.js src: http://localhost:8770/main.js
+[2026-04-01T11:14:51.314Z] [log] selectOption: undefined
+[2026-04-01T11:14:51.314Z] [log] checkQuiz: undefined
+[2026-04-01T11:14:51.314Z] [log] initChat: undefined
+[2026-04-01T11:14:51.314Z] [log] term element exists: true
+[2026-04-01T11:30:06.975Z] [log] Visible after 1s: 5
+[2026-04-01T11:30:56.778Z] [log] visible after restart: 5
+[2026-04-01T11:59:00.821Z] [log] {"rect":{"top":296.421875,"left":40,"width":98,"height":38},"display":"block","visibility":"visible","opacity":"1","pointerEvents":"auto","disabled":false}
+[2026-04-01T12:04:05.212Z] [log] After 1s: 1 visible
+[2026-04-01T12:04:58.482Z] [log] visible=1 progress=1 / 5 messages

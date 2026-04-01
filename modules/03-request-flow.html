@@ -1,0 +1,367 @@
+<section class="module" id="module-3" style="background: var(--color-bg);">
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 1: 开场钩子 + 流程概览                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <header class="module-header">
+        <span class="module-number">03</span>
+        <h1 class="module-title">请求的旅程——从输入到响应</h1>
+        <p class="module-subtitle">当你在 Claude Code 里输入「帮我读这个文件」，这简单的一句话背后，经历了一个精心编排的五步舞蹈。</p>
+      </header>
+
+      <!-- 流程概览图 -->
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <p>用户输入</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <p>CLI 解析命令</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <p>API 调用</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <p>工具执行</p>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">5</div>
+          <p>响应返回</p>
+        </div>
+      </div>
+
+      <!-- 隐喻卡片 -->
+      <div class="callout callout-accent">
+        <div class="callout-icon">🍜</div>
+        <div class="callout-content">
+          <span class="callout-title">就像点外卖</span>
+          <p>你下订单（输入），外卖平台接收（CLI 处理），厨房准备（AI 模型思考），骑手送餐（工具执行），最后你收到食物（响应）。每一步都可能出问题，了解流程才能调试。</p>
+        </div>
+      </div>
+
+      <!-- 关键洞察 -->
+      <div class="pattern-cards stagger-children">
+        <div class="pattern-card animate-in">
+          <div class="pattern-icon" style="background: var(--color-accent-light); color: var(--color-accent);">🔄</div>
+          <div class="pattern-title">循环架构</div>
+          <p class="pattern-desc">Claude Code 的请求处理是一个循环——用户输入 → API 调用 → 工具执行 → 结果返回 → 再次调用 API，直到任务完成。</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <div class="pattern-icon" style="background: var(--color-info-light); color: var(--color-info);">🎯</div>
+          <div class="pattern-title">调试关键</div>
+          <p class="pattern-desc">当 Claude Code 做了一件你没预期的事，知道请求在哪个环节「拐错了弯」，能帮你快速修复提示词或配置。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 2: 代码 ↔ 英文翻译 (query.ts 核心流程)                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">query.ts——请求处理的核心函数</h2>
+      <p>这个函数是整个请求旅程的「大堂」——所有请求都要经过这里。让我们看看它的真实代码：</p>
+
+      <!-- Code ↔ English 翻译块 -->
+      <div class="translation-block">
+        <div class="translation-code">
+          <span class="translation-label">TypeScript</span>
+<pre>export async function query(
+  params: QueryParams,
+): Promise&lt;QueryResult&gt; {
+  const { messages, systemPrompt,
+          tools, tool_choice,
+          maxTokens } = params
+
+  const request = buildClaudeRequest({
+    messages, systemPrompt,
+    tools, tool_choice, maxTokens,
+  })
+
+  const stream = await callClaudeAPI(request)
+
+  for await (const event of stream) {
+    if (event.type
+        === 'content_block_delta') {
+      yield { type: 'text',
+              content: event.delta.text }
+    } else if (event.type
+               === 'tool_use') {
+      const result
+        = await executeTool(
+            event.tool_use)
+      messages.push(
+        createToolResultMessage(
+          event.tool_use.id, result))
+    }
+  }
+}</pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">English</span>
+          <div class="translation-lines">
+            <div class="tl">1. <strong>export</strong> — This function is the main entry point for handling queries, exported so other modules can call it.</div>
+            <div class="tl">2. <strong>params</strong> — Destructures the query parameters: conversation messages, system prompt, available tools, tool choice constraints, and max tokens.</div>
+            <div class="tl">3. <strong>buildClaudeRequest()</strong> — Wraps all parameters into the format Anthropic's API expects.</div>
+            <div class="tl">4. <strong>callClaudeAPI()</strong> — Sends the request and returns a <strong>stream</strong> of events (not a single response).</div>
+            <div class="tl">5. <strong>for await...of stream</strong> — Iterates over each event as it arrives from the API (streaming response).</div>
+            <div class="tl">6. <strong>content_block_delta</strong> — When the model outputs text, yield it as a text event to the caller.</div>
+            <div class="tl">7. <strong>tool_use</strong> — When the model calls a tool, execute it and push the result back into the messages array for the next turn.</div>
+            <div class="tl">8. <strong>createToolResultMessage()</strong> — Formats the tool result so the model can see what happened in its next response.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 关键概念解释 -->
+      <div class="icon-rows">
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-accent-light); color: var(--color-accent);">📡</div>
+          <div>
+            <strong>流式响应 (Streaming)</strong>
+            <p>API 不是等整个回答生成完再返回，而是一边生成一边「流」过来。前端可以实时显示打字效果。</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-info-light); color: var(--color-info);">🔗</div>
+          <div>
+            <strong>工具调用循环 (Tool Use Loop)</strong>
+            <p>每次工具执行完，结果会被塞回消息历史，下一轮 API 调用会「看到」这个结果——这就是 Claude Code 能「多步推理」的秘诀。</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 3: 群聊动画 (5 actors: 用户/CLI/APP/工具/结果)        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">五步舞蹈的实时演绎</h2>
+      <p>让我们用群聊动画来看这五步是如何配合的：</p>
+
+      <!-- 群聊动画窗口 -->
+      <div class="chat-window" id="chat-req-flow">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-sender="user" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">用</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">用户</span>
+              <p>「帮我读取 src/index.ts 文件」</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="cli" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">CLI</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">CLI 输入处理器</span>
+              <p>解析命令 → 构建 QueryParams → 调用 query()</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="api" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">API</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">API 客户端</span>
+              <p>buildClaudeRequest() + callClaudeAPI() → 流式事件</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="tool" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-4);">工</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4);">工具执行器</span>
+              <p>FileReadTool 执行 → 返回文件内容</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="result" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-5);">结</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-5);">用户输出</span>
+              <p>「文件内容：export async function main() {...」</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" style="display:none;">
+          <div class="chat-avatar" id="chat-req-flow-typing-avatar" style="background: var(--color-actor-2);">?</div>
+          <div class="chat-typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">下一条</button>
+          <button class="btn btn-primary chat-all-btn">全部播放</button>
+          <button class="btn chat-reset-btn">重置</button>
+          <span class="chat-progress">0 / 5 messages</span>
+        </div>
+      </div>
+
+      <!-- 数据流动画 (8 steps) -->
+      <div class="flow-animation" id="flow-req-path"
+           data-steps='[
+             {"label": "用户输入「读取文件」，CLI 接收", "highlight": "user", "from": "user", "to": "cli"},
+             {"label": "CLI 解析命令，构建 QueryParams", "highlight": "cli", "from": "cli", "to": "api"},
+             {"label": "API 客户端构建请求，调用 Claude API", "highlight": "api", "from": "api", "to": "model"},
+             {"label": "AI 模型思考，决定调用 FileReadTool", "highlight": "model", "from": "model", "to": "tool"},
+             {"label": "工具执行器运行 FileReadTool", "highlight": "tool", "from": "tool", "to": "tool"},
+             {"label": "工具返回结果，加入消息历史", "highlight": "tool", "from": "tool", "to": "api"},
+             {"label": "第二轮 API 调用，模型生成最终回答", "highlight": "api", "from": "api", "to": "model"},
+             {"label": "最终响应流式返回给用户", "highlight": "result", "from": "model", "to": "result"}
+           ]'>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-user">
+            <div class="flow-actor-icon" style="background: var(--color-actor-1); color: white;">用</div>
+            <span>用户</span>
+          </div>
+          <div class="flow-actor" id="flow-cli">
+            <div class="flow-actor-icon" style="background: var(--color-actor-2); color: white;">CLI</div>
+            <span>CLI 处理器</span>
+          </div>
+          <div class="flow-actor" id="flow-api">
+            <div class="flow-actor-icon" style="background: var(--color-actor-3); color: white;">API</div>
+            <span>API 客户端</span>
+          </div>
+          <div class="flow-actor" id="flow-model">
+            <div class="flow-actor-icon" style="background: var(--color-actor-4); color: white;">🤖</div>
+            <span>AI 模型</span>
+          </div>
+          <div class="flow-actor" id="flow-tool">
+            <div class="flow-actor-icon" style="background: var(--color-actor-5); color: white;">🔧</div>
+            <span>工具执行器</span>
+          </div>
+          <div class="flow-actor" id="flow-result">
+            <div class="flow-actor-icon actor-check">✓</div>
+            <span>最终响应</span>
+          </div>
+        </div>
+        <div class="flow-packet"></div>
+        <div class="flow-step-label">点击「下一步」开始动画</div>
+        <div class="flow-controls">
+          <button class="btn btn-primary flow-next-btn">下一步</button>
+          <button class="btn flow-reset-btn">重置</button>
+          <span class="flow-progress">Step 0 / 8</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 4: 调试场景 Quiz                                       -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading" id="quiz-req-flow-heading">调试场景测试</h2>
+
+      <div class="scenario-block">
+        <div class="scenario-context">
+          <div class="scenario-label">Scenario</div>
+          <p>你让 Claude Code 读取文件 `src/config.ts`，但它回复：「抱歉，我无法读取该文件。」</p>
+        </div>
+      </div>
+
+      <div class="quiz-container" id="quiz-req-flow" role="group" aria-labelledby="quiz-req-flow-heading">
+        <div class="quiz-question-block"
+             data-correct="B"
+             data-explanation-right="正确！问题出在「工具执行」环节——可能是 FileReadTool 本身没有注册、文件路径不存在、或者权限不足（PermissionMode 阻止）。"
+             data-explanation-wrong="不对。API 调用成功才会有流式响应，问题不在 API 层。">
+          <div class="quiz-question">Claude Code 能输出这段文字，说明请求已经到达哪个环节？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A. 用户输入环节——CLI 根本没收到命令</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>B. 工具执行环节——工具运行出错了</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>C. API 调用环节——请求没发出去</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="C"
+             data-explanation-right="正确！模型能生成「无法读取」的回复，说明 API 调用成功了，问题在工具执行或权限检查。"
+             data-explanation-wrong="注意：如果 API 调用失败，Claude Code 根本不会有任何回复，你会直接看到错误。">
+          <div class="quiz-question">如果是 API Key 过期导致失败，用户会看到什么？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A. 「抱歉，我无法读取该文件」</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>B. 「正在思考...」一直卡住</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>C. 底层抛出错误（401 Unauthorized）</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="A"
+             data-explanation-right="正确！消息历史累积是 Claude Code 多步推理的基础——每次工具结果都 push 回 messages，模型才能「记住」之前发生了什么。"
+             data-explanation-wrong="其实每次工具执行后，结果都会通过 createToolResultMessage() 推入 messages 数组。">
+          <div class="quiz-question">在 query.ts 的循环中，工具结果被存放在哪里以供下一轮使用？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A. messages 数组</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>B. 全局变量</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>C. 不保存，直接发送给用户</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-req-flow')">检查答案</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-req-flow')">重置</button>
+      </div>
+
+    </div>
+  </section>
+
+
+      <!-- 核心要点 -->
+      <div class="takeaway-card">
+        <div class="takeaway-label">模块 03 — 核心要点</div>
+        <p class="takeaway-text">请求是一个循环，不是一条直线</p>
+        <p class="takeaway-meta">用户输入 → API 调用 → 工具执行 → 结果返回 → 再次 API 调用……这个循环直到任务完成才结束。问题总发生在某个环节，理解流程能帮你快速定位。</p>
+      </div>
+</section>

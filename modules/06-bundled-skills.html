@@ -1,0 +1,295 @@
+<section class="module" id="module-6" style="background: var(--color-bg-warm);">
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 1 — 开场：斜杠命令背后的超能力
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+      <h2 class="screen-heading">为什么一个斜杠命令能启动「三个代理」？</h2>
+
+      <div class="callout callout-info" style="margin-bottom: var(--space-6);">
+        <span class="callout-icon">💡</span>
+        <div class="callout-content">
+          <span class="callout-title">内置技能的本质</span>
+          <p>技能本质上是一个预设的 <span class="term" data-definition="给 AI 的行为指令，告诉它扮演什么角色、按什么步骤工作">system prompt</span> + <span class="term" data-definition="同时启动多个子代理并行工作，每个代理负责不同的审查维度">多代理编排</span>。输入 <code style="font-family:var(--font-mono);font-size:var(--text-xs);">/simplify</code>，Claude Code 会自动启动一个完整的代码审查流水线。</p>
+        </div>
+      </div>
+
+      <div class="arch-diagram">
+        <div class="arch-zone">
+          <div class="arch-zone-label">用户输入 → /simplify</div>
+          <div style="display:flex; justify-content:center; gap:var(--space-4); flex-wrap:wrap;">
+            <div class="arch-component" style="border-top-color:var(--color-actor-2);">
+              <span class="arch-icon">🔍</span>
+              <strong style="font-size:var(--text-sm);">代理 1：代码复用审查</strong>
+              <p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:0;">搜索现有工具函数，避免重复造轮子</p>
+            </div>
+            <div class="arch-component" style="border-top-color:var(--color-actor-3);">
+              <span class="arch-icon">✨</span>
+              <strong style="font-size:var(--text-sm);">代理 2：代码质量审查</strong>
+              <p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:0;">冗余状态、参数滥用、复制粘贴模式</p>
+            </div>
+            <div class="arch-component" style="border-top-color:var(--color-actor-4);">
+              <span class="arch-icon">⚡</span>
+              <strong style="font-size:var(--text-sm);">代理 3：效率审查</strong>
+              <p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:0;">算法效率、不必要的复杂度</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background:var(--color-actor-2);color:white;">/</div>
+          <div>
+            <strong>斜杠命令是技能的入口</strong>
+            <p>输入 <code style="font-family:var(--font-mono);">/simplify</code>、<code style="font-family:var(--font-mono);">/batch</code>、<code style="font-family:var(--font-mono);">/loop</code>，触发预设的 AI 工作流。一个命令 = 多代理协作。</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background:var(--color-actor-3);color:white;">⚙️</div>
+          <div>
+            <strong>技能 = 预设 Prompt + 工具编排</strong>
+            <p>每个技能背后是一段 <span class="term" data-definition="定义 AI 角色、目标和行为的文本指令">prompt 模板</span>，加上预定义的 <span class="term" data-definition="Claude Code 可调用的能力，如搜索文件、执行命令、启动子代理">工具调用</span>组合。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 2 — 代码翻译块：simplify.ts
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+      <h2 class="screen-heading">/simplify 技能的源代码长什么样？</h2>
+
+      <div class="translation-block">
+        <div class="translation-code">
+          <span class="translation-label">TypeScript — src/skills/bundled/simplify.ts</span>
+<pre>const SIMPLIFY_PROMPT = `# Simplify: Code Review
+
+Review all changed files for reuse,
+quality, and efficiency. Fix issues.
+
+## Phase 1: Identify Changes
+Run \`git diff\` to see what changed.
+
+## Phase 2: Launch Three Review Agents
+Use AgentTool to launch all three
+agents concurrently:
+
+### Agent 1: Code Reuse Review
+- Search for existing utilities
+- Flag duplicate functionality
+
+### Agent 2: Code Quality Review
+- Redundant state, parameter sprawl
+
+### Agent 3: Efficiency Review
+- Algorithmic efficiency issues
+`</pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">English 原文翻译</span>
+          <div class="translation-lines">
+            <div class="tl"><strong>SIMPLIFY_PROMPT</strong> — 技能的核心 prompt 模板，定义了「代码审查与清理」的目标</div>
+            <div class="tl"><strong>Phase 1: Identify Changes</strong> — 第一阶段：运行 <code style="font-family:var(--font-mono);font-size:var(--text-xs);">git diff</code> 识别本次改动的文件</div>
+            <div class="tl"><strong>AgentTool</strong> — <span class="term" data-definition="允许 Claude Code 启动子代理的工具，是并行多代理工作的核心">启动子代理的工具</span>，用于并发执行</div>
+            <div class="tl"><strong>Agent 1: Code Reuse Review</strong> — 代理1：检查是否有重复代码或可复用的现有工具</div>
+            <div class="tl"><strong>Agent 2: Code Quality Review</strong> — 代理2：检查冗余状态、参数滥用、复制粘贴模式</div>
+            <div class="tl"><strong>Agent 3: Efficiency Review</strong> — 代理3：检查算法复杂度和性能问题</div>
+            <div class="tl"><strong>concurrently</strong> — 三个代理同时启动、并行工作，节省时间</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent">
+        <span class="callout-icon">🤯</span>
+        <div class="callout-content">
+          <span class="callout-title">这就是 prompt engineering 的力量</span>
+          <p>不是魔法 — 就是把「做什么」写清楚。三个代理并行工作，用 <span class="term" data-definition="让多个任务同时执行而不是依次等待">并发</span> 的方式完成原本需要三倍时间的审查。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 3 — 群聊动画：3 个并行代理
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+      <h2 class="screen-heading">/simplify 启动后，三位代理如何「同时工作」？</h2>
+
+      <div class="chat-window" id="chat-simplify-agents">
+        <div class="chat-messages">
+          <div class="chat-message" data-sender="skilltool" style="display:none;">
+            <div class="chat-avatar" style="background:var(--color-actor-2);">/</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color:var(--color-actor-2);">SKILL TOOL</span>
+              <p>收到 <code style="font-family:var(--font-mono);font-size:var(--text-xs);">/simplify</code>，正在解析 prompt 并准备启动三个审查代理…</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="reuse-agent" style="display:none;">
+            <div class="chat-avatar actor-2">R</div>
+            <div class="chat-bubble">
+              <span class="chat-sender actor-2">REUSE AGENT</span>
+              <p>我正在用 <span class="term" data-definition="按文件名模式搜索文件的工具，如 **/*.ts">GlobTool</span> 搜索现有 utils… 发现 <code style="font-family:var(--font-mono);font-size:var(--text-xs);">formatDate()</code> 和 <code style="font-family:var(--font-mono);font-size:var(--text-xs);">parseDate()</code> 在 utils/date.ts 中已存在，代码中有重复！</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="quality-agent" style="display:none;">
+            <div class="chat-avatar actor-3">Q</div>
+            <div class="chat-bubble">
+              <span class="chat-sender actor-3">QUALITY AGENT</span>
+              <p>我正在扫描… 发现 <code style="font-family:var(--font-mono);font-size:var(--text-xs);">UserProfile</code> 组件有 <span class="term" data-definition="同一个值被复制到多个变量中，维护成本高">参数 sprawl</span> 问题，构造函数有 14 个参数！</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="efficiency-agent" style="display:none;">
+            <div class="chat-avatar actor-4">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender actor-4">EFFICIENCY AGENT</span>
+              <p>我在分析算法复杂度… 发现搜索函数用了 O(n²) 的嵌套循环，可以优化为 O(n log n)。</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="claude" style="display:none;">
+            <div class="chat-avatar" style="background:var(--color-actor-1);">🤖</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color:var(--color-actor-1);">CLAUDE</span>
+              <p>三位代理的审查结果已汇总：发现 1 处重复代码、1 处参数滥用、1 处效率问题。正在自动修复… ✅</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-typing" style="display:none;">
+          <div id="chat-simplify-agents-typing-avatar" class="chat-avatar" style="background:var(--color-actor-2);">/</div>
+          <div class="chat-typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">下一条</button>
+          <button class="btn btn-primary chat-all-btn">全部播放</button>
+          <button class="btn chat-reset-btn">重置</button>
+          <span class="chat-progress">0 / 5 messages</span>
+        </div>
+      </div>
+
+      <div class="pattern-cards">
+        <div class="pattern-card" style="border-top-color:var(--color-actor-2);">
+          <div class="pattern-icon" style="background:var(--color-actor-2);color:white;">⚡</div>
+          <div class="pattern-title">/batch</div>
+          <p class="pattern-desc">批量并行工作：同时处理多个文件或任务，每个任务启动独立的子代理，适合大规模重构。</p>
+        </div>
+        <div class="pattern-card" style="border-top-color:var(--color-actor-3);">
+          <div class="pattern-icon" style="background:var(--color-actor-3);color:white;">🔁</div>
+          <div class="pattern-title">/loop</div>
+          <p class="pattern-desc">定时任务：按设定的时间间隔（5m、30m、1h）重复执行一个 prompt，适合持续监控场景。</p>
+        </div>
+        <div class="pattern-card" style="border-top-color:var(--color-actor-4);">
+          <div class="pattern-icon" style="background:var(--color-actor-4);color:white;">✅</div>
+          <div class="pattern-title">/verify</div>
+          <p class="pattern-desc">验证代理：专注于验证修复是否正确、测试是否通过，确保 AI 的修改没有引入新问题。</p>
+        </div>
+        <div class="pattern-card" style="border-top-color:var(--color-actor-5);">
+          <div class="pattern-icon" style="background:var(--color-actor-5);color:white;">🧠</div>
+          <div class="pattern-title">/remember</div>
+          <p class="pattern-desc">记忆存储：让 Claude Code 记住项目特定的知识、规则和约定，下次对话时自动应用。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREEN 4 — 内置技能卡片 + Quiz
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading" id="quiz-module6-heading">内置技能知识小测</h2>
+
+      <div class="scenario-block">
+        <div class="scenario-context">
+          <span class="scenario-label">场景</span>
+          <p>你的团队需要在每次代码提交后自动检查单元测试是否通过，并且每小时检查一次生产环境健康状态。</p>
+        </div>
+      </div>
+
+      <div class="quiz-container" id="quiz-module6" role="group" aria-labelledby="quiz-module6-heading">
+        <div class="quiz-question-block" data-correct="A" data-explanation-right="正确！<code>/loop</code> 技能专门用于定时重复执行命令，<code>/loop 60m check-tests</code> 即可每小时自动运行测试检查。" data-explanation-wrong="不对。<code>/loop</code> 才是定时重复任务的技能，它的用法是 <code>/loop [间隔时间] [要执行的命令]</code>，如 <code>/loop 60m check-tests</code>。">
+          <p class="quiz-question">Q1. 想让 Claude Code 每小时自动检查一次测试状态，应该用哪个技能？</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span><code style="font-family:var(--font-mono);font-size:var(--text-xs);">/loop</code> — 定时重复执行</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span><code style="font-family:var(--font-mono);font-size:var(--text-xs);">/batch</code> — 批量并行处理</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span><code style="font-family:var(--font-mono);font-size:var(--text-xs);">/simplify</code> — 代码审查</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <div class="quiz-question-block" data-correct="B" data-explanation-right="正确！<code>/simplify</code> 的核心是并发启动三个子代理（复用审查、质量审查、效率审查），三个审查维度同时进行，互不干扰。" data-explanation-wrong="不对。<code>/simplify</code> 并不是串行执行的——它是同时启动三个代理并行工作，每个代理审查一个维度，体现了并发设计的好处。">
+          <p class="quiz-question">Q2. /simplify 技能中的三个审查代理是如何执行的？</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span>串行执行：先完成代理1，再代理2，最后代理3</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span>并发执行：三个代理同时启动，分别审查不同维度</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span>由用户选择先执行哪个代理</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <div class="quiz-question-block" data-correct="C" data-explanation-right="正确！<code>/remember</code> 专门用于存储项目知识，让 Claude Code 在后续对话中记住团队的编码规范、架构决策和技术债务。" data-explanation-wrong="不对。<code>/verify</code> 是验证修复结果的工具。<code>/remember</code> 才是专门用于让 Claude Code 记住项目特定知识和规范的技能。">
+          <p class="quiz-question">Q3. 团队有一套自己的编码规范和架构约定，想让 Claude Code 在每次对话中都记住这些规则，应该用哪个技能？</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span><code style="font-family:var(--font-mono);font-size:var(--text-xs);">/verify</code> — 验证修复结果</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span><code style="font-family:var(--font-mono);font-size:var(--text-xs);">/batch</code> — 批量并行处理</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span><code style="font-family:var(--font-mono);font-size:var(--text-xs);">/remember</code> — 记忆存储</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">提交答案</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">重置</button>
+      </div>
+    </div>
+  </section>
+
+
+      <!-- 核心要点 -->
+      <div class="takeaway-card">
+        <div class="takeaway-label">模块 06 — 核心要点</div>
+        <p class="takeaway-text">斜杠命令是预设的 prompt 工程</p>
+        <p class="takeaway-meta">/simplify、/batch、/loop——这些技能本质上是预设的 system prompt + 多代理编排。学会它们，你就学会了如何设计自己的 AI 工作流。</p>
+      </div>
+</section>

@@ -1,0 +1,310 @@
+<section class="module animate-in" id="module-1" style="background: var(--color-bg);">
+
+  <!-- ================================================================
+       SCREEN 1: 开场 — 超级翻译官
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <header class="module-header">
+        <span class="module-number">01</span>
+        <h1 class="module-title">Claude Code 是什么？</h1>
+        <p class="module-subtitle">你的超级翻译官 — 把自然语言变成代码的指挥官</p>
+      </header>
+
+      <div class="callout callout-accent" style="margin: var(--space-8) 0;">
+        <span class="callout-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2L14 13H2L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M8 6v4M8 11.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div class="callout-content">
+          <span class="callout-title">你有没有想过？</span>
+          <p>你每天都在和 Claude Code 对话，但当你输入一句话，它的内部到底发生了什么？</p>
+        </div>
+      </div>
+
+      <div class="pattern-cards">
+        <div class="pattern-card">
+          <div class="pattern-icon icon-letter" style="background: var(--color-accent-light); color: var(--color-accent);">RC</div>
+          <div class="pattern-title">读文件</div>
+          <div class="pattern-desc">Claude Code 能读取你项目中的任何文件，理解代码结构</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon icon-letter" style="background: var(--color-info-light); color: var(--color-info);">WT</div>
+          <div class="pattern-title">写代码</div>
+          <div class="pattern-desc">不只是建议——它能直接创建、编辑、删除文件</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon icon-letter" style="background: var(--color-success-light); color: var(--color-success);">SH</div>
+          <div class="pattern-title">执行命令</div>
+          <div class="pattern-desc">运行 Bash 命令、Git 操作、npm 脚本等</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon icon-letter icon-ap">AP</div>
+          <div class="pattern-title">调用工具</div>
+          <div class="pattern-desc">搜索网页、抓取页面内容、访问外部 API</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top: var(--space-8);">
+        <span class="callout-icon">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 7v5M8 5.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div class="callout-content">
+          <span class="callout-title">为什么重要？</span>
+          <p>理解 Claude Code 的能力边界，你才能更有效地"指挥"它——知道该用什么指令，知道它擅长什么、不擅长什么。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCREEN 2: 代码 ↔ 英文翻译块 — cli.tsx polyfill
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">代码翻译：构建时与运行时的桥梁</h2>
+
+      <p style="margin-bottom: var(--space-6); font-size: var(--text-base); color: var(--color-text-secondary);">
+        Claude Code 的入口文件用了一个巧妙的<span class="term" data-definition="Polyfill 是一种垫片代码，在运行时模拟原本在构建时才存在的特性。">polyfill 模式</span>，在启动时模拟"构建时才存在"的常量。看看这段代码：
+      </p>
+
+      <div class="translation-block">
+        <div class="translation-code">
+          <span class="translation-label">JavaScript</span>
+<pre>// Runtime polyfill for bun:bundle
+const feature = (_name: string) => false;
+if (typeof globalThis.MACRO === "undefined") {
+    (globalThis as any).MACRO = {
+        VERSION: "2.1.888",
+        BUILD_TIME: new Date().toISOString(),
+    };
+}
+// Build-time constants
+(globalThis as any).BUILD_TARGET = "external";
+(globalThis as any).BUILD_ENV = "production";
+(globalThis as any).INTERFACE_TYPE = "stdio";</pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">English</span>
+          <div class="translation-lines">
+            <div class="tl">// 运行时 polyfill，服务于 bun:bundle</div>
+            <div class="tl">// 定义一个始终返回 false 的 feature 函数</div>
+            <div class="tl">// 如果 globalThis.MACRO 未定义（运行在非 bun 环境）</div>
+            <div class="tl">// 手动在全局对象上挂载 MACRO 对象</div>
+            <div class="tl">// 包含版本号和构建时间</div>
+            <div class="tl">// 构建时常量（正常由 Bun 打包器在编译时替换）</div>
+            <div class="tl">// 标记构建目标为 external</div>
+            <div class="tl">// 标记环境为生产环境</div>
+            <div class="tl">// 标记接口类型为标准输入输出（stdio）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="icon-rows">
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-accent-light); color: var(--color-accent);">1</div>
+          <div>
+            <strong><span class="term" data-definition="Bun 是一个 JavaScript 运行时和打包器，这里用来构建 Claude Code。">Bun</span> 打包器在构建时</strong>
+            <p>将 INTERFACE_TYPE 等占位符替换为真实值（"external"、"production"、"stdio"）</p>
+          </div>
+        </div>
+        <div class="icon-row">
+          <div class="icon-circle" style="background: var(--color-info-light); color: var(--color-info);">2</div>
+          <div>
+            <strong>运行时 fallback</strong>
+            <p>如果没有 bun 运行环境，代码用 polyfill 保证仍然能启动，只是值变成了默认值</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCREEN 3: 群聊动画 + 数据流动画
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">一次对话的幕后：Actor 们如何协作</h2>
+
+      <!-- 群聊动画 -->
+      <div class="chat-window">
+        <div class="chat-messages">
+          <div class="chat-message" data-actor="user">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">用</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">用户</span>
+              <p>帮我把登录页面的背景色改成深蓝色</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="claude">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">C</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Claude Code</span>
+              <p>好的，我先读一下当前的登录页面代码，找到背景色设置的位置。</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="tool">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">FR</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">FileReadTool</span>
+              <p>读取完成：src/pages/LoginPage.tsx，共 86 行</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="claude">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">C</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Claude Code</span>
+              <p>找到第 23 行：backgroundColor: "#f0f0f0"。我来把它改成深蓝色。</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="tool">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">FR</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">FileEditTool</span>
+              <p>修改完成！将 #f0f0f0 改为 #1a237e（深蓝色）</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn btn-primary" data-chat-action="restart">重新播放</button>
+          <span class="chat-progress">5 / 5</span>
+        </div>
+      </div>
+
+      <!-- 数据流动画 -->
+      <div class="flow-diagram">
+        <div class="flow-step-label">点击"下一步"观看用户请求如何流经 Claude Code</div>
+        <div class="flow-actors">
+          <div class="flow-actor" data-step="1">
+            <div class="flow-actor-icon" style="background: var(--color-actor-1); color: white;">US</div>
+            <span style="color: var(--color-actor-1); font-weight: 600;">用户</span>
+          </div>
+          <div class="flow-actor" data-step="2">
+            <div class="flow-actor-icon" style="background: var(--color-actor-2); color: white;">CLI</div>
+            <span style="color: var(--color-actor-2);">Claude Code CLI</span>
+          </div>
+          <div class="flow-actor" data-step="3">
+            <div class="flow-actor-icon" style="background: var(--color-actor-4); color: white;">API</div>
+            <span style="color: var(--color-actor-4);">Anthropic API</span>
+          </div>
+          <div class="flow-actor" data-step="4">
+            <div class="flow-actor-icon" style="background: var(--color-actor-3); color: white;">TX</div>
+            <span style="color: var(--color-actor-3);">工具执行器</span>
+          </div>
+        </div>
+        <div class="flow-controls">
+          <button class="btn btn-primary">下一步</button>
+          <button class="btn">重置</button>
+          <span class="flow-progress">步骤 0 / 4</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCREEN 4: Quiz — 场景选择题
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading" id="quiz-1-heading">小测验：Claude Code 能做什么？</h2>
+
+      <div class="quiz-container" id="quiz-1" data-quiz="1" role="group" aria-labelledby="quiz-1-heading">
+        <!-- Q1 -->
+        <div class="quiz-question-block" data-correct="B" data-explanation-right="正确！Claude Code 需要终端保持运行，一旦关闭终端，进程就会结束。" data-explanation-wrong="不对。Claude Code 实际上可以创建和编辑源文件、读取理解代码结构。它无法完成的是在关闭电脑后继续独立运行。">
+          <div class="scenario-block">
+            <span class="scenario-label">场景</span>
+            <div class="scenario-context">
+              <p style="margin: 0;">你的同事说："Claude Code 可以直接帮你写一个完整的 React 项目。"</p>
+            </div>
+          </div>
+          <div class="quiz-question">以下哪件事是 Claude Code <strong>无法完成</strong>的？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              根据你的描述创建和编辑源文件
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              在你关闭电脑后继续运行（独立于终端存活）
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              读取项目中的所有文件并理解其结构
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block" data-correct="B" data-explanation-right="正确！工具的返回结果会作为上下文传回给 AI，AI 根据结果决定下一步行动——这是 Claude Code 做决策的核心机制。" data-explanation-wrong="不对。工具的返回结果不会直接显示给用户，而是传回给 AI，让 AI 根据结果决定下一步。">
+          <div class="quiz-question">Claude Code 调用工具时，工具的返回结果会去哪里？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              直接显示在你的终端里，不会传回给 AI
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              作为上下文传回给 AI，AI 再决定下一步
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              存入数据库，供下次会话使用
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block" data-correct="B" data-explanation-right="正确！FileWriteTool 执行失败（权限不足、路径错误等）但 AI 没有收到或理解错误信息时，会产生「幻觉式回复」。" data-explanation-wrong="不对。AI 生成幻觉（胡说八道）非常罕见。更可能的是 FileWriteTool 执行失败了但 AI 没有正确处理错误。">
+          <div class="scenario-block">
+            <span class="scenario-label">场景</span>
+            <div class="scenario-context">
+              <p style="margin: 0;">你输入："帮我创建一个 config.json 文件"，Claude Code 回答："已创建"，但你查看目录时文件并不存在。</p>
+            </div>
+          </div>
+          <div class="quiz-question">最可能的原因是什么？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Claude Code 的 AI 模型生成功能出现了幻觉
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="工具执行失败但 AI 没有正确收到错误信息，或权限不足导致工具被拒绝执行。">FileWriteTool 执行失败</span>但 AI 没有正确处理错误
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              AI 故意说谎（这种情况理论上不可能发生）
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-1')">检查答案</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-1')">重新答题</button>
+      </div>
+
+    </div>
+  </section>
+
+
+      <!-- 核心要点 -->
+      <div class="takeaway-card">
+        <div class="takeaway-label">模块 01 — 核心要点</div>
+        <p class="takeaway-text">Claude Code 是一个「三角架构」</p>
+        <p class="takeaway-meta">CLI 接收命令，API Client 调用大脑，工具执行器操作文件——三者缺一不可。理解这个三角，你就能定位任何问题的根源。</p>
+      </div>
+</section>

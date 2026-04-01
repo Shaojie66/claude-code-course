@@ -1,0 +1,332 @@
+<section class="module animate-in" id="module-2" style="background: var(--color-bg-warm);">
+
+  <!-- ================================================================
+       SCREEN 1: 开场 — 515,000 行代码的管弦乐团
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <header class="module-header">
+        <span class="module-number">02</span>
+        <h1 class="module-title">核心角色们</h1>
+        <p class="module-subtitle">把 Claude Code 想象成一个管弦乐团——每个组件只做一件事</p>
+      </header>
+
+      <div class="callout callout-accent" style="margin: var(--space-8) 0;">
+        <span class="callout-icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1L10 6H15L11 9.5L12.5 15L8 11.5L3.5 15L5 9.5L1 6H6L8 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></span>
+        <div class="callout-content">
+          <span class="callout-title">开场钩子</span>
+          <p>Claude Code 有 515,000 行代码，但可以被分成几个核心「角色」，每个角色只做一件事。认识它们，你就能读懂整个系统。</p>
+        </div>
+      </div>
+
+      <div class="pattern-cards">
+        <div class="pattern-card">
+          <div class="pattern-icon" style="background: var(--color-actor-1); color: white;">CLI</div>
+          <div class="pattern-title" style="color: var(--color-actor-1);">CLI</div>
+          <div class="pattern-desc">负责启动和初始化，把用户命令传进去</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon" style="background: var(--color-actor-2); color: white;">QE</div>
+          <div class="pattern-title" style="color: var(--color-actor-2);">QueryEngine</div>
+          <div class="class="pattern-desc">编排对话，决定下一步调用什么工具</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon" style="background: var(--color-actor-3); color: white;">TX</div>
+          <div class="pattern-title" style="color: var(--color-actor-3);">Tools</div>
+          <div class="pattern-desc">执行具体操作：读文件、写代码、执行命令</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon" style="background: var(--color-actor-4); color: white;">RE</div>
+          <div class="pattern-title" style="color: var(--color-actor-4);">REPL</div>
+          <div class="pattern-desc">交互界面，读取输入、显示输出</div>
+        </div>
+        <div class="pattern-card">
+          <div class="pattern-icon" style="background: var(--color-actor-5); color: white;">AI</div>
+          <div class="pattern-title" style="color: var(--color-actor-5);">API</div>
+          <div class="pattern-desc">连接 Anthropic 大脑，获取 AI 回复</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top: var(--space-8);">
+        <span class="callout-icon"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v5M8 5.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <div class="callout-content">
+          <span class="callout-title">为什么重要？</span>
+          <p>当 AI 帮你写代码出问题，你知道该检查哪个组件——是 AI 的判断错了，还是工具执行失败了？</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCREEN 2: 代码 ↔ 英文翻译 — buildTool 构建器模式
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">代码翻译：工具的构建工厂</h2>
+
+      <p style="margin-bottom: var(--space-6); font-size: var(--text-base); color: var(--color-text-secondary);">
+        每个<span class="term" data-definition="工具（Tool）是 Claude Code 中可调用的函数，每个工具负责一类操作，如读取文件、搜索网页等。">工具</span>都通过 <span class="term" data-definition="Builder Pattern，一种设计模式，通过链式调用逐步构建复杂对象。">buildTool</span> 函数创建。这是一种「构建器模式」——用默认配置起步，再按需覆盖。
+      </p>
+
+      <div class="translation-block">
+        <div class="translation-code">
+          <span class="translation-label">TypeScript</span>
+<pre>export function buildTool&lt;D extends AnyToolDef&gt;(
+  def: D
+): BuiltTool&lt;D&gt; {
+  return {
+    ...TOOL_DEFAULTS,
+    userFacingName: () => def.name,
+    ...def,
+  } as BuiltTool&lt;D&gt;
+}
+
+const TOOL_DEFAULTS = {
+  isEnabled: () => true,
+  isConcurrencySafe: (_input?: unknown) => false,
+  isReadOnly: (_input?: unknown) => false,
+  isDestructive: (_input?: unknown) => false,
+  checkPermissions: (
+    input: { [key: string]: unknown },
+    _ctx?: ToolUseContext,
+  ): Promise&lt;PermissionResult&gt; =>
+    Promise.resolve({ behavior: 'allow', updatedInput: input }),
+  toAutoClassifierInput: (_input?: unknown) => '',
+  userFacingName: (_input?: unknown) => '',
+}</pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">English</span>
+          <div class="translation-lines">
+            <div class="tl">// buildTool 是一个泛型函数，接收工具定义</div>
+            <div class="tl">// 返回一个完整配置的 BuiltTool 对象</div>
+            <div class="tl">// 先展开 TOOL_DEFAULTS（所有工具的默认配置）</div>
+            <div class="tl">// userFacingName 默认返回工具名</div>
+            <div class="tl">// 再展开用户传入的 def（覆盖默认值）</div>
+            <div class="tl">// TOOL_DEFAULTS 定义了每个工具的默认行为</div>
+            <div class="tl">// isEnabled：工具是否启用，默认 true</div>
+            <div class="tl">// isConcurrencySafe：是否线程安全，默认 false</div>
+            <div class="tl">// isReadOnly：是否只读，默认 false</div>
+            <div class="tl">// isDestructive：是否有破坏性，默认 false</div>
+            <div class="tl">// checkPermissions：权限检查，默认允许</div>
+            <div class="tl">// toAutoClassifierInput：自动分类器输入</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-cards">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>TOOL_DEFAULTS</strong>
+            <p>所有工具的默认行为集合——"如果工具没特别说，就是允许的"</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>用户传入 def</strong>
+            <p>具体的工具定义（比如 FileReadTool），覆盖默认值</p>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>展开合并</strong>
+            <p>...TOOL_DEFAULTS 先展开，再被 ...def 覆盖，得到最终配置</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCREEN 3: 架构图 + 群聊动画（启动流程）
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">src/ 目录结构：每个文件夹的职责</h2>
+
+      <div class="arch-diagram">
+        <div class="arch-zone">
+          <div class="arch-zone-label">src/</div>
+          <div class="arch-component" role="button" tabindex="0" aria-label="查看 entrypoints 详情" onclick="showArchDesc(this, 'entrypoints/ — 应用入口点。cli.tsx 是启动文件，负责初始化全局 polyfill。')">
+            <span class="arch-icon">CLI</span>
+            <strong>entrypoints/</strong>
+            <span style="color: var(--color-text-muted); font-size: var(--text-xs);">应用入口</span>
+          </div>
+          <div class="arch-component" role="button" tabindex="0" aria-label="查看 tools 详情" onclick="showArchDesc(this, 'tools/ — 工具定义目录。每个文件是一个工具实现，如 FileReadTool、GrepTool 等。')">
+            <span class="arch-icon">TX</span>
+            <strong>tools/</strong>
+            <span style="color: var(--color-text-muted); font-size: var(--text-xs);">工具实现</span>
+          </div>
+          <div class="arch-component" role="button" tabindex="0" aria-label="查看 services 详情" onclick="showArchDesc(this, 'services/ — 核心服务层。api/claude.ts 负责与 Anthropic API 通信。')">
+            <span class="arch-icon">AI</span>
+            <strong>services/</strong>
+            <span style="color: var(--color-text-muted); font-size: var(--text-xs);">API 服务</span>
+          </div>
+          <div class="arch-component" role="button" tabindex="0" aria-label="查看 screens 详情" onclick="showArchDesc(this, 'screens/ — 界面层。不同平台的 UI 实现（TUI/桌面/Web）。')">
+            <span class="arch-icon">RE</span>
+            <strong>screens/</strong>
+            <span style="color: var(--color-text-muted); font-size: var(--text-xs);">交互界面</span>
+          </div>
+          <div class="arch-component" role="button" tabindex="0" aria-label="查看 utils 详情" onclick="showArchDesc(this, 'utils/ — 工具函数。通用的小工具散落在这里。')">
+            <span class="arch-icon">UT</span>
+            <strong>utils/</strong>
+            <span style="color: var(--color-text-muted); font-size: var(--text-xs);">工具函数</span>
+          </div>
+          <div class="arch-component" role="button" tabindex="0" aria-label="查看 bootstrap 详情" onclick="showArchDesc(this, 'bootstrap/ — 初始化逻辑。state.ts 管理会话状态（session ID、token 预算等）。')">
+            <span class="arch-icon">CA</span>
+            <strong>bootstrap/</strong>
+            <span style="color: var(--color-text-muted); font-size: var(--text-xs);">初始化</span>
+          </div>
+        </div>
+        <div class="arch-description" id="arch-desc" aria-live="polite">点击上方组件查看详情</div>
+      </div>
+
+      <!-- 群聊动画：启动流程 -->
+      <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-10);">启动流程群聊</h3>
+
+      <div class="chat-window">
+        <div class="chat-messages">
+          <div class="chat-message" data-actor="cli">
+            <div class="chat-avatar" style="background: var(--color-actor-1); color: white;">CLI</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">CLI</span>
+              <p>用户运行 claude 命令，初始化 bootstrap/state.ts</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="state">
+            <div class="chat-avatar" style="background: var(--color-actor-2); color: white;">CA</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Session State</span>
+              <p>创建 sessionId、originalCwd、tokenBudget</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="toolregistry">
+            <div class="chat-avatar" style="background: var(--color-actor-3); color: white;">T</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Tool Registry</span>
+              <p>注册所有工具：getAllBaseTools() 返回 20+ 工具</p>
+            </div>
+          </div>
+          <div class="chat-message" data-actor="repl">
+            <div class="chat-avatar" style="background: var(--color-actor-4); color: white;">REPL</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4);">REPL</span>
+              <p>就绪！等待用户输入...</p>
+            </div>
+          </div>
+        </div>
+        <div class="chat-controls">
+          <button class="btn btn-primary" data-chat-action="restart">重新播放</button>
+          <span class="chat-progress">4 / 4</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SCREEN 4: Quiz — 调试问题场景
+  ================================================================ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading" id="quiz-2-heading">小测验：哪个组件出问题了？</h2>
+
+      <div class="quiz-container" id="quiz-2" data-quiz="2" role="group" aria-labelledby="quiz-2-heading">
+        <!-- Q1 -->
+        <div class="quiz-question-block" data-correct="C" data-explanation-right="正确！文件不存在说明 FileWriteTool 执行失败了但 AI 没有正确处理错误（如权限不足、目录不存在等）。" data-explanation-wrong="不对。CLI 负责接收命令、REPL 负责显示输出——它们没有问题。问题出在 FileWriteTool 执行失败但 AI 没有正确报告。">
+          <div class="scenario-block">
+            <span class="scenario-label">场景</span>
+            <div class="scenario-context">
+              <p style="margin: 0;">用户说："帮我创建一个 config.json"。Claude Code 回复："已创建 config.json"。但你去目录看，文件不存在。</p>
+            </div>
+          </div>
+          <div class="quiz-question">问题最可能出在哪个组件？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Command Line Interface，负责接收用户输入、启动应用的入口">CLI</span> — 没有正确启动
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              REPL — 没有正确显示输出
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="负责实际执行文件写入的工具">FileWriteTool</span> — 执行失败但 AI 没有正确处理错误
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block" data-correct="B" data-explanation-right="正确！QueryEngine 是编排层——理解用户意图，决定调用哪个工具，并把工具结果传回给 AI 做下一步决策。" data-explanation-wrong="不对。QueryEngine 不直接读写文件系统（那是 Tools 的工作），也不与 API 通信（那是 API Client 的工作）。">
+          <div class="quiz-question">
+            QueryEngine 在一次对话中扮演什么角色？
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              直接读写文件系统
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              理解用户意图，决定调用哪个工具，并把工具结果传回给 AI
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              负责与 Anthropic API 通信
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block" data-correct="A" data-explanation-right="正确！Session State（bootstrap/state.ts）存储 token budget 信息，在每次 API 调用后更新，预算耗尽时会触发警告。" data-explanation-wrong="不对。token budget 不是由 API Client 返回的（API 只返回实际用量），也不是 REPL 自己计算的——它存储在 Session State 中。">
+          <div class="scenario-block">
+            <span class="scenario-label">场景</span>
+            <div class="scenario-context">
+              <p style="margin: 0;">Claude Code 运行了很久后突然报错："Token budget exceeded"。</p>
+            </div>
+          </div>
+          <div class="quiz-question">这个 budget 信息存储在哪里？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="bootstrap/state.ts 中定义的 Session State，包含 inputTokens、outputTokens、totalTokens">Session State</span> — tokenBudget 字段
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="负责与 Anthropic API 通信的客户端">API Client</span> — Anthropic 返回的
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="负责显示界面的交互层">REPL</span> — 界面自己计算的
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-2')">检查答案</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-2')">重新答题</button>
+      </div>
+
+    </div>
+  </section>
+
+
+      <!-- 核心要点 -->
+      <div class="takeaway-card">
+        <div class="takeaway-label">模块 02 — 核心要点</div>
+        <p class="takeaway-text">每个组件只做一件事</p>
+        <p class="takeaway-meta">CLI、QueryEngine、Tools、REPL、API——515,000 行代码可以被分解为 5 个各司其职的角色。这是理解整个系统的钥匙。</p>
+      </div>
+</section>

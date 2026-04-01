@@ -423,6 +423,7 @@
         }, i * 80);
       });
       if (typingEl) typingEl.style.display = 'none';
+      updateProgress();
     }
 
     // Wire up "重新播放" via event delegation

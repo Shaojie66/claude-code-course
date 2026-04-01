@@ -1,0 +1,362 @@
+<section class="module" id="module-4" style="background: var(--color-bg-warm);">
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 1: 开场钩子 + 工具系统概览                             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <header class="module-header">
+        <span class="module-number">04</span>
+        <h1 class="module-title">工具系统——Claude Code 的瑞士军刀</h1>
+        <p class="module-subtitle">Claude Code 能读文件、写代码、运行程序、搜索网页——这些能力不是内置的，而是通过「工具」扩展的。理解工具，就是理解 Claude Code 的能力边界。</p>
+      </header>
+
+      <!-- 隐喻卡片 -->
+      <div class="callout callout-accent">
+        <div class="callout-icon">🎒</div>
+        <div class="callout-content">
+          <span class="callout-title">工具就像「技能包」</span>
+          <p>每学会一个新技能，就能做更多事。<span class="term" data-definition="BashTool：让 Claude Code 能够执行 shell 命令，如 ls、grep、curl 等。">BashTool</span> 让它能跑命令，<span class="term" data-definition="FileReadTool：读取本地文件内容的工具，是 Claude Code「读书」的能力来源。">FileReadTool</span> 让它能读书籍，<span class="term" data-definition="WebSearchTool：搜索网页的工具，让 Claude Code 能查实时资料。">WebSearchTool</span> 让它能查资料。</p>
+        </div>
+      </div>
+
+      <!-- 核心洞察 -->
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">40+</div>
+          <div class="step-body">
+            <strong>独立 TypeScript 模块</strong>
+            <p>每个工具都是一个独立的模块，通过 <code class="badge-code">buildTool()</code> 统一接口注册到系统。</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">🔐</div>
+          <div class="step-body">
+            <strong>权限检查是标配</strong>
+            <p>每个可能危险的操作都有 <span class="term" data-definition="PermissionMode：控制工具执行时的权限级别，如 dontAsk（不询问）、bypassPermissions（跳过权限）等。">PermissionMode</span> 把关。</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">🔗</div>
+          <div class="step-body">
+            <strong>工具可组合</strong>
+            <p>一次对话中，Claude Code 可以连续调用多个工具——先搜索，再读取，再编辑。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 工具分类卡片 -->
+      <div class="pattern-cards stagger-children">
+        <div class="pattern-card animate-in">
+          <div class="pattern-icon" style="background: var(--color-actor-2); color: white;">📁</div>
+          <div class="pattern-title">文件系统</div>
+          <p class="pattern-desc">FileReadTool、FileEditTool、FileWriteTool、GlobTool、GrepTool</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <div class="pattern-icon" style="background: var(--color-actor-3); color: white;">💻</div>
+          <div class="pattern-title">命令执行</div>
+          <p class="pattern-desc">BashTool（带危险命令检测）、PowerShellTool（Windows）</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <div class="pattern-icon" style="background: var(--color-actor-4); color: white;">🌐</div>
+          <div class="pattern-title">网络工具</div>
+          <p class="pattern-desc">WebFetchTool（抓取网页）、WebSearchTool（搜索）</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <div class="pattern-icon" style="background: var(--color-actor-5); color: white;">🤖</div>
+          <div class="pattern-title">代理与技能</div>
+          <p class="pattern-desc">AgentTool（子代理）、SkillTool（调用技能）、TaskStopTool</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 2: 代码 ↔ 英文翻译 (getAllBaseTools)                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">getAllBaseTools()——工具注册表</h2>
+      <p>这是工具系统的主入口，列出所有内置工具。注意：这只是基础工具，<span class="term" data-definition="MCP：Model Context Protocol，让 Claude Code 能调用外部服务（如数据库、API）的协议。">MCP</span> 还可以动态添加更多。</p>
+
+      <!-- Code ↔ English 翻译块 -->
+      <div class="translation-block">
+        <div class="translation-code">
+          <span class="translation-label">TypeScript</span>
+<pre>export function getAllBaseTools(): Tools {
+  return [
+    AgentTool,          // 运行子代理
+    TaskOutputTool,     // 读取后台任务输出
+    BashTool,           // 执行 shell 命令
+    GlobTool,           // 文件名匹配搜索
+    GrepTool,           // 内容搜索
+    ExitPlanModeV2Tool, // 退出计划模式
+    FileReadTool,       // 读取文件
+    FileEditTool,       // 编辑文件
+    FileWriteTool,      // 写入文件
+    NotebookEditTool,   // Jupyter 编辑
+    WebFetchTool,        // 获取网页内容
+    WebSearchTool,      // 搜索网页
+    TodoWriteTool,      // 写 todo 列表
+    TaskStopTool,       // 停止后台任务
+    AskUserQuestionTool,// 向用户提问
+    SkillTool,          // 调用技能
+    EnterPlanModeTool,  // 进入计划模式
+    BriefTool,          // 简短模式
+    ListMcpResourcesTool,// 列出 MCP 资源
+    ReadMcpResourceTool,// 读取 MCP 资源
+    ToolSearchTool,     // 工具搜索
+    // 条件加载的工具...
+    // CronCreate/Delete/List
+    // PowerShellTool
+    // ... 总计 40+ 工具
+  ]
+}</pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">English</span>
+          <div class="translation-lines">
+            <div class="tl"><strong>AgentTool</strong> — Spawns a child agent to handle a subtask independently.</div>
+            <div class="tl"><strong>TaskOutputTool</strong> — Reads the output of a background task started by AgentTool.</div>
+            <div class="tl"><strong>BashTool</strong> — Executes shell commands. Has dangerous pattern detection (see bashSecurity.ts).</div>
+            <div class="tl"><strong>GlobTool</strong> — Pattern-based file name search (like `find . -name "*.ts"`).</div>
+            <div class="tl"><strong>GrepTool</strong> — Content search within files (like `grep -r`).</div>
+            <div class="tl"><strong>FileReadTool</strong> — Reads the full content of a file.</div>
+            <div class="tl"><strong>FileEditTool</strong> — Makes targeted edits to a file (search + replace).</div>
+            <div class="tl"><strong>FileWriteTool</strong> — Creates or overwrites a file with new content.</div>
+            <div class="tl"><strong>WebFetchTool</strong> — Fetches the raw HTML/content of a URL.</div>
+            <div class="tl"><strong>WebSearchTool</strong> — Searches the web and returns results.</div>
+            <div class="tl"><strong>SkillTool</strong> — Invokes a named skill (another capability extension mechanism).</div>
+            <div class="tl"><strong>ToolSearchTool</strong> — Allows Claude Code to search for and discover tools at runtime.</div>
+            <div class="tl"><strong>MCP Resources</strong> — External resources provided via the Model Context Protocol.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 危险命令检测 -->
+      <div class="callout callout-warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-content">
+          <span class="callout-title">BashTool 的安全护栏</span>
+          <p>Claude Code 不会盲目执行所有命令。<code class="badge-code">BashTool</code> 内置了 <span class="term" data-definition="危险 bash 命令黑名单，包括 python、node、curl、chmod、sudo 等可能被滥用的命令。">DANGEROUS_BASH_PATTERNS</span> 和 <span class="term" data-definition="检测命令替换、进程替换等危险 shell 语法，如 $(...), &lt;(), ${} 等。">COMMAND_SUBSTITUTION_PATTERNS</span> 检测，危险命令需要用户显式授权。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 3: 群聊动画 + 拖拽匹配                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading">工具协作：一次真实对话的幕后</h2>
+      <p>当 Claude Code 帮你「写一个 README 然后提交 git」时，背后发生了怎样的工具协作？</p>
+
+      <!-- 群聊动画窗口 -->
+      <div class="chat-window" id="chat-tool-collab">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-sender="user" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">用</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">用户</span>
+              <p>「帮我写一个 README.md，然后提交到 git」</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="skill" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">技</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">SkillTool</span>
+              <p>检测到需要 git 技能，调用 SkillTool</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="agent" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">代</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">AgentTool</span>
+              <p>启动子代理，分步骤执行任务</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="bash" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-4);">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4);">BashTool</span>
+              <p>git add . &amp;&amp; git commit -m "docs: add README"</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-sender="edit" style="display:none;">
+            <div class="chat-avatar" style="background: var(--color-actor-5);">编</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-5);">FileEditTool</span>
+              <p>创建 README.md 内容</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" style="display:none;">
+          <div class="chat-avatar" id="chat-tool-collab-typing-avatar" style="background: var(--color-actor-2);">?</div>
+          <div class="chat-typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">下一条</button>
+          <button class="btn btn-primary chat-all-btn">全部播放</button>
+          <button class="btn chat-reset-btn">重置</button>
+          <span class="chat-progress">0 / 5 messages</span>
+        </div>
+      </div>
+
+      <!-- 拖拽匹配练习 -->
+      <h3 class="screen-heading" id="dnd-tools-heading" style="font-size: var(--text-xl); margin-top: var(--space-10);">工具 ↔ 功能匹配</h3>
+      <p>将左侧的工具拖拽到右侧对应的功能描述上：</p>
+
+      <div class="dnd-container" id="dnd-tools" role="group" aria-labelledby="dnd-tools-heading">
+        <div class="dnd-chips">
+          <div class="dnd-chip" data-answer="FileReadTool">FileReadTool</div>
+          <div class="dnd-chip" data-answer="BashTool">BashTool</div>
+          <div class="dnd-chip" data-answer="GrepTool">GrepTool</div>
+          <div class="dnd-chip" data-answer="WebSearchTool">WebSearchTool</div>
+          <div class="dnd-chip" data-answer="AgentTool">AgentTool</div>
+        </div>
+
+        <div class="dnd-zones">
+          <div class="dnd-zone" data-correct="GrepTool">
+            <div class="dnd-zone-label">在项目中搜索「async function」出现在哪些文件</div>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="FileReadTool">
+            <div class="dnd-zone-label">读取 /etc/hosts 文件内容</div>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="BashTool">
+            <div class="dnd-zone-label">运行 npm install 安装依赖</div>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="WebSearchTool">
+            <div class="dnd-zone-label">查找 Claude Code 最新版本特性</div>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+          <div class="dnd-zone" data-correct="AgentTool">
+            <div class="dnd-zone-label">启动一个子代理独立完成重构任务</div>
+            <div class="dnd-zone-target">Drop here</div>
+          </div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkDnD('dnd-tools')">检查答案</button>
+        <button class="quiz-reset-btn" onclick="resetDnD('dnd-tools')">重置</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 4: 场景 Quiz                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen animate-in">
+    <div class="module-content">
+
+      <h2 class="screen-heading" id="quiz-tool-system-heading">工具系统场景测试</h2>
+
+      <div class="scenario-block">
+        <div class="scenario-context">
+          <div class="scenario-label">Scenario</div>
+          <p>你想让 Claude Code 帮你部署代码到一台远程服务器。它说：「我无法执行部署命令。」</p>
+        </div>
+      </div>
+
+      <div class="quiz-container" id="quiz-tool-system" role="group" aria-labelledby="quiz-tool-system-heading">
+        <div class="quiz-question-block"
+             data-correct="B"
+             data-explanation-right="正确！部署需要 SSH 登录远程服务器并执行命令，这需要 BashTool。但如果 BashTool 没有被注册（工具列表为空或被过滤），Claude Code 就无法执行任何 shell 命令。"
+             data-explanation-wrong="Claude Code 本身有 BashTool，问题不在于它「不知道怎么做」，而可能是工具没注册或权限不够。">
+          <div class="quiz-question">最可能的原因是？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A. Claude Code 不支持部署功能</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>B. BashTool 没有注册或被阻止</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>C. WebSearchTool 没有联网</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="C"
+             data-explanation-right="正确！BashTool 内置了危险命令检测，像 rm -rf / 这样的命令会触发警告，需要用户显式授权才能执行。这是一种安全护栏机制。"
+             data-explanation-wrong="实际上 Claude Code 会拦截危险命令！bashSecurity.ts 定义了 DANGEROUS_BASH_PATTERNS，rm -rf / 就在其中。">
+          <div class="quiz-question">你输入「rm -rf /」，Claude Code 会怎么做？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A. 直接执行，因为用户要求了</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>B. 拒绝执行，然后道歉</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>C. 拦截危险命令，弹出权限确认</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="A"
+             data-explanation-right="正确！SkillTool 和 AgentTool 都能扩展 Claude Code 的能力——SkillTool 调用预定义的技能（如 /ship），AgentTool 启动子代理处理复杂任务。"
+             data-explanation-wrong="BashTool 和 FileEditTool 是基础工具，SkillTool/AgentTool 才是真正的「技能包」，能调用这些基础工具的组合。">
+          <div class="quiz-question">想让 Claude Code 自动完成「代码审查 → 修复 → 提交」全流程，最应该用什么？</div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="A" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A. AgentTool（子代理）</span>
+            </button>
+            <button class="quiz-option" data-value="B" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>B. 连续调用 BashTool</span>
+            </button>
+            <button class="quiz-option" data-value="C" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>C. WebSearchTool</span>
+            </button>
+          </div>
+          <div class="quiz-feedback" role="status"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-tool-system')">检查答案</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-tool-system')">重置</button>
+      </div>
+
+    </div>
+  </section>
+
+
+      <!-- 核心要点 -->
+      <div class="takeaway-card">
+        <div class="takeaway-label">模块 04 — 核心要点</div>
+        <p class="takeaway-text">工具是可组合的乐高积木</p>
+        <p class="takeaway-meta">40+ 工具，每个都是独立模块，通过 buildTool() 统一注册。想让 Claude Code 做新事情？先看看有没有对应的工具，或者注册一个新的。</p>
+      </div>
+</section>
